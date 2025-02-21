@@ -1,34 +1,21 @@
 const express = require("express");
-const cors = require("cors");
 
 const app = express();
 const PORT = 4000;
 
 app.use(express.json());
 
-// Explicitly allow frontend origin (change to match your frontend URL)
-app.use(
-  cors({
-    origin: "http://localhost:3002", // Change this if hosted elsewhere
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  })
-);
-
-// Middleware to manually set CORS headers
+// Middleware for manually setting CORS headers for all routes
 app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Origin", "*"); // Allow all origins (Change this if needed)
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  next();
-});
+  
+  if (req.method === "OPTIONS") {
+    return res.status(204).end(); // Properly handle preflight requests
+  }
 
-// Handle CORS preflight requests explicitly
-app.options("*", (req, res) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  res.status(204).end();
+  next();
 });
 
 // Handle POST request
@@ -73,7 +60,9 @@ app.get("/bfhl", (req, res) => {
   res.status(200).json({ operation_code: 1 });
 });
 
-// Start the server
+// Start the server (Not needed for Vercel, but works locally)
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
+module.exports = app; // Required for Vercel deployment
