@@ -1,8 +1,8 @@
 {
-    "routes": [
+    "rewrites": [
       {
-        "src": "/(.*)",
-        "dest": "src/server.js"
+        "source": "/(.*)",
+        "destination": "src/server.js"
       }
     ],
     "headers": [
