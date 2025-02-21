@@ -5,6 +5,13 @@ const PORT = process.env.PORT || 3005;
 
 app.use(express.json());
 app.use(cors());
+app.use(
+    cors({
+      origin: "*", // Allows requests from any origin
+      methods: ["GET", "POST", "PUT", "DELETE"],
+      allowedHeaders: ["Content-Type", "Authorization"],
+    })
+  );
 
 app.post("/bfhl", (req, res) => {
     try {
