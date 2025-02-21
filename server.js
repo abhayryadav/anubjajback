@@ -6,28 +6,33 @@ const PORT = 4000;
 
 app.use(express.json());
 
+// Explicitly allow frontend origin (change to match your frontend URL)
 app.use(
   cors({
-    origin: "*", // Allows requests from any origin
+    origin: "http://localhost:3002", // Change this if hosted elsewhere
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
-// Handle CORS preflight requests (important for Vercel)
+// Middleware to manually set CORS headers
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  next();
+});
+
+// Handle CORS preflight requests explicitly
 app.options("*", (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  res.status(200).end();
+  res.status(204).end();
 });
 
 // Handle POST request
 app.post("/bfhl", (req, res) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-
   try {
     const { data } = req.body;
 
@@ -39,8 +44,8 @@ app.post("/bfhl", (req, res) => {
     const email = "john@xyz.com";
     const roll_number = "ABCD123";
 
-    const numbers = data.filter(item => !isNaN(item)).map(String);
-    const alphabets = data.filter(item => /^[a-zA-Z]$/.test(item));
+    const numbers = data.filter((item) => !isNaN(item)).map(String);
+    const alphabets = data.filter((item) => /^[a-zA-Z]$/.test(item));
 
     const highestAlphabet = alphabets.length
       ? [alphabets.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase())).pop()]
@@ -65,10 +70,6 @@ app.post("/bfhl", (req, res) => {
 
 // Handle GET request
 app.get("/bfhl", (req, res) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-
   res.status(200).json({ operation_code: 1 });
 });
 
