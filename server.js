@@ -3,23 +3,29 @@ const express = require("express");
 const app = express();
 const PORT = 4000;
 
+// Middleware to parse JSON requests
 app.use(express.json());
 
-// Middleware for manually setting CORS headers for all routes
-app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "*"); // Allow all origins (Change this if needed)
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  
+// CORS Middleware
+const allowCors = (fn) => async (req, res) => {
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+  res.setHeader("Access-Control-Allow-Origin", "*"); // Allow all origins
+  res.setHeader("Access-Control-Allow-Methods", "GET,OPTIONS,PATCH,DELETE,POST,PUT");
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version"
+  );
+
   if (req.method === "OPTIONS") {
-    return res.status(204).end(); // Properly handle preflight requests
+    res.status(200).end();
+    return;
   }
 
-  next();
-});
+  return fn(req, res);
+};
 
-// Handle POST request
-app.post("/bfhl", (req, res) => {
+// POST /bfhl API
+const postBfhl = (req, res) => {
   try {
     const { data } = req.body;
 
@@ -53,16 +59,21 @@ app.post("/bfhl", (req, res) => {
   } catch (error) {
     res.status(500).json({ is_success: false, message: "Server error" });
   }
-});
+};
 
-// Handle GET request
-app.get("/bfhl", (req, res) => {
+// GET /bfhl API
+const getBfhl = (req, res) => {
   res.status(200).json({ operation_code: 1 });
-});
+};
 
-// Start the server (Not needed for Vercel, but works locally)
+// Use allowCors wrapper on routes
+app.post("/bfhl", allowCors(postBfhl));
+app.get("/bfhl", allowCors(getBfhl));
+
+// Start the server locally
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
-module.exports = app; // Required for Vercel deployment
+// Export for Vercel deployment
+module.exports = app;
