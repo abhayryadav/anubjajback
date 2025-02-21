@@ -5,20 +5,7 @@ const PORT = 4000;
 
 app.use(express.json());
 
-// Middleware for manually setting CORS headers for all routes
-app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "*"); // Allow all origins (Change this if needed)
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  
-  if (req.method === "OPTIONS") {
-    return res.status(204).end(); // Properly handle preflight requests
-  }
-
-  next();
-});
-
-// Handle POST request
+app.use(cors())
 app.post("/bfhl", (req, res) => {
   try {
     const { data } = req.body;
